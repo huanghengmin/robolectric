@@ -81,6 +81,7 @@ import android.os.PersistableBundle;
 import android.os.Process;
 import android.provider.DocumentsContract;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.core.content.pm.ApplicationInfoBuilder;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -1995,6 +1996,49 @@ public class ShadowPackageManagerTest {
     assertThat(packageManager.getResourcesForApplication("another.package")).isNotNull();
     assertThat(packageManager.getResourcesForApplication("another.package"))
         .isNotEqualTo(ApplicationProvider.getApplicationContext().getResources());
+  }
+
+  @Test
+  public void getResourcesForApplication_ApkNotInstalled()
+      throws IOException, NameNotFoundException {
+    File testApk = TestUtil.resourcesBaseDir().resolve(REAL_TEST_APP_ASSET_PATH).toFile();
+
+    PackageInfo packageInfo = packageManager.getPackageArchiveInfo(
+        testApk.getAbsolutePath(), 0);
+
+    String resourcesMode = System.getProperty("robolectric.resourcesMode");
+    if (resourcesMode != null && resourcesMode.equals("legacy")) {
+      assertThat(packageInfo).isNull();
+    } else {
+      assertThat(packageInfo).isNotNull();
+      ApplicationInfo applicationInfo = packageInfo.applicationInfo;
+      assertThat(applicationInfo.packageName).isEqualTo(REAL_TEST_APP_PACKAGE_NAME);
+
+      // double-check that Robolectric doesn't consider this package to be installed
+      try {
+        packageManager.getPackageInfo(packageInfo.packageName, 0);
+        Assert.fail("Package not expected to be installed.");
+      } catch (NameNotFoundException e) {
+        // expected exception
+      }
+
+      applicationInfo.sourceDir = applicationInfo.publicSourceDir = testApk.getAbsolutePath();
+      assertThat(packageManager.getResourcesForApplication(applicationInfo)).isNotNull();
+    }
+  }
+
+  @Test
+  public void getResourcesForApplication_ApkNotPresent() {
+    ApplicationInfo applicationInfo =
+        ApplicationInfoBuilder.newBuilder().setPackageName("com.not.present").build();
+    applicationInfo.sourceDir = applicationInfo.publicSourceDir = "/some/nonexistant/path";
+
+    try {
+      packageManager.getResourcesForApplication(applicationInfo);
+      Assert.fail("Expected NameNotFoundException not thrown");
+    } catch (NameNotFoundException ex) {
+      // Expected exception
+    }
   }
 
   @Test
