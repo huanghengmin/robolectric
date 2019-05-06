@@ -138,6 +138,11 @@ public class ShadowWifiManagerTest {
     wifiManager.enableNetwork(777, false);
     lastEnabled = shadowOf(wifiManager).getLastEnabledNetwork();
     assertThat(lastEnabled).isEqualTo(new Pair<>(777, false));
+
+    List<Pair<Integer, Boolean>> enableds = shadowOf(wifiManager).getEnabledNetworks();
+    assertThat(enableds).contains(new Pair<>(666, true));
+    assertThat(enableds).contains(new Pair<>(777, false));
+    assertThat(enableds).hasSize(2);
   }
 
   @Test

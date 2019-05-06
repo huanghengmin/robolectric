@@ -43,6 +43,7 @@ public class ShadowWifiManager {
   private List<ScanResult> scanResults;
   private final Map<Integer, WifiConfiguration> networkIdToConfiguredNetworks = new LinkedHashMap<>();
   private Pair<Integer, Boolean> lastEnabledNetwork;
+  private final List<Pair<Integer, Boolean>> enabledNetworks = new ArrayList<>();
   private DhcpInfo dhcpInfo;
   private boolean isScanAlwaysAvailable = true;
   private boolean startScanSucceeds = true;
@@ -161,6 +162,7 @@ public class ShadowWifiManager {
   @Implementation
   protected boolean enableNetwork(int netId, boolean disableOthers) {
     lastEnabledNetwork = new Pair<>(netId, disableOthers);
+    enabledNetworks.add(lastEnabledNetwork);
     return true;
   }
 
@@ -322,6 +324,10 @@ public class ShadowWifiManager {
 
   public Pair<Integer, Boolean> getLastEnabledNetwork() {
     return lastEnabledNetwork;
+  }
+
+  public List<Pair<Integer, Boolean>> getEnabledNetworks() {
+    return enabledNetworks;
   }
 
   /** Returns the number of WifiLocks and MulticastLocks that are currently acquired. */
