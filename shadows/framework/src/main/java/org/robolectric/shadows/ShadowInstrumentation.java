@@ -535,8 +535,6 @@ public class ShadowInstrumentation {
           } else {
             serviceConnectionDataWrapper = defaultServiceConnectionData;
           }
-          serviceConnection.onServiceDisconnected(
-              serviceConnectionDataWrapper.componentNameForBindService);
         });
   }
 
@@ -771,7 +769,6 @@ public class ShadowInstrumentation {
         @WithType("android.app.IInstrumentationWatcher") Object watcher,
         @WithType("android.app.IUiAutomationConnection") Object uiAutomationConnection);
   }
-
 
   private static final class BroadcastResultHolder {
     private final int resultCode;
