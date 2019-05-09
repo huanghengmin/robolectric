@@ -34,6 +34,7 @@ public class ShadowTelecomManager {
   private List<CallRecord> incomingCalls = new ArrayList<>();
   private List<CallRecord> unknownCalls = new ArrayList<>();
   private String defaultDialerPackageName;
+  private String systemDefaultDialerPackageName;
   private boolean isInCall;
 
   @Implementation
@@ -188,6 +189,7 @@ public class ShadowTelecomManager {
     return defaultDialerPackageName;
   }
 
+  @Deprecated // API deprecated since Q, for testing, use setDefaultDialerPackage instead
   @Implementation(minSdk = M)
   @HiddenApi
   public boolean setDefaultDialer(String packageName) {
@@ -195,10 +197,18 @@ public class ShadowTelecomManager {
     return true;
   }
 
+  public void setDefaultDialerPackage(String packageName) {
+    this.defaultDialerPackageName = packageName;
+  }
+
   @Implementation(minSdk = M)
-  @HiddenApi
+  @HiddenApi // API goes public in Q
   public String getSystemDialerPackage() {
-    return null;
+    return systemDefaultDialerPackageName;
+  }
+
+  public void setSystemDialerPackage(String packageName) {
+    this.systemDefaultDialerPackageName = packageName;
   }
 
   @Implementation(minSdk = LOLLIPOP_MR1)
